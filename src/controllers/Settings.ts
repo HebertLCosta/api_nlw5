@@ -1,21 +1,19 @@
 import { Request, Response } from 'express';
-import { getCustomRepository } from 'typeorm';
-import { SettingsRepository } from '../repositories/Setting';
+import { SettingsService } from '../services/Settings';
 
 class SettingsController {
   async create(request: Request, response: Response) {
     const { chat, userName } = request.body;
 
-    const settingsRepository = getCustomRepository(SettingsRepository);
+    const settingsService = new SettingsService();
 
-    const settings = settingsRepository.create({
-      chat,
-      userName,
-    });
+    try {
+      const settings = await settingsService.create({ chat, userName });
 
-    await settingsRepository.save(settings);
-
-    return response.json(settings);
+      return response.json(settings);
+    } catch (err) {
+      return response.status(400).json({ message: err.message });
+    }
   }
 }
 
